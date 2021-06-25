@@ -46,6 +46,9 @@ def CreateTFSelectOp: NativeCodeCall<
 def ConstAttrIfThenElse: NativeCodeCall<
     "($0).getValue() ? ($1) : ($2)">;
 
+class GetI64ScalarElementsAttr<int value> :
+  NativeCodeCall<"GetI64ElementsAttr({" # value # "}, &$_builder)">;
+
 // Convert clamp(lo, x, hi) to clipbyvalue(x, lo, hi).
 def Clamp: NativeCodeCall<
     "$_builder.create<TF::ClipByValueOp>("
@@ -348,7 +351,8 @@ def DecomposeResourceScatterAdd : Pat<
     $resource,
     (TF_TensorScatterAddOp
       (CreateTFReadVariableOp $src_op, $updates, $resource),
-      $indices,
+      (TF_ExpandDimsOp $indices,
+       (TF_ConstOp (GetI64ScalarElementsAttr<-1>))),
       $updates
     )
   )>;

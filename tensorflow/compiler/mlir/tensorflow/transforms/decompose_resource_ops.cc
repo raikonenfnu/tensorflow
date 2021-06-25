@@ -82,6 +82,13 @@ static Type GetResourceSubtype(Value resource) {
       .front();
 }
 
+static DenseIntElementsAttr GetI64ElementsAttr(ArrayRef<int64_t> values,
+                                               Builder *builder) {
+  RankedTensorType ty = RankedTensorType::get(
+      {static_cast<int64_t>(values.size())}, builder->getIntegerType(64));
+  return DenseIntElementsAttr::get(ty, values);
+}
+
 // Decompose tf.RngReadAndSkip.
 //
 // For Philox, the resource variable holds a tensor<3xi64> with the state:
